@@ -1,0 +1,1 @@
+class_method_inside_Main_module
