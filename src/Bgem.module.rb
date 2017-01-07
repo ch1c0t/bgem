@@ -7,3 +7,6 @@ using Module.new {
     end
   end
 }
+
+INDENT = 2
+SOURCE_FILE = Dir['src/*.rb'][0]

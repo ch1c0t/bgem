@@ -1,6 +1,4 @@
-INDENT = 2
-
-def initialize file, indent: 0
+def initialize file = SOURCE_FILE, indent: 0
   @file, @indent = (Pathname file), indent
   @source = @file.read
   @constant, @type, _rb = @file.basename.to_s.split '.'

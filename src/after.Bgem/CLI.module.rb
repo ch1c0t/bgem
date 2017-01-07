@@ -1,9 +1,7 @@
-MAIN_FILE = Dir['src/*.rb'][0]
-
 def self.run
   options = parse_argv
-  target = TargetFile.new (options[:output] || 'output.rb')
-  target.write SourceFile.new(options[:input] || MAIN_FILE).to_s
+  target = TargetFile.new *options[:output], options[:scope]
+  target.write SourceFile.new(*options[:input]).to_s
 end
 
 def self.parse_argv
