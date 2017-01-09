@@ -1,14 +1,23 @@
 def initialize file = SOURCE_FILE, indent: 0
   @file, @indent = (Pathname file), indent
   @source = @file.read
-  @constant, @type, _rb = @file.basename.to_s.split '.'
+  head, @type, _rb = @file.basename.to_s.split '.'
+  @constant, _colon, @ancestor = head.partition ':'
 end
 
 def to_s
-  "#{@type} #{@constant}\n#{source}end".indent @indent
+  "#{head}#{source}end".indent @indent
 end
 
 private
+  def head
+    if @ancestor.empty?
+      "#{@type} #{@constant}\n"
+    else
+      "#{@type} #{@constant} < #{@ancestor}\n"
+    end
+  end
+
   def source
     source = @source.indent INDENT
     source.prepend "#{before}\n\n" unless before.empty?
