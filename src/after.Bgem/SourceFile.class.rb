@@ -29,7 +29,7 @@ private
     symbols.each do |symbol|
       define_method symbol do
         pattern =  @file.dirname.join "#{__method__}.#{@constant}/*.rb"
-        Pathname.glob(pattern).map do |file|
+        Dir[pattern].sort.map do |file|
           self.class.new(file, indent: INDENT).to_s
         end.join "\n\n"
       end
