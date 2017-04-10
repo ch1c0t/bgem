@@ -3,7 +3,7 @@ require 'tempfile'
 
 describe Bgem::TargetFile do
   it do
-    target = described_class.new Tempfile.new, "['module M', 'class C']"
+    target = described_class.new Tempfile.new, ['class C', 'module M']
 
     target.write 'smt'
 

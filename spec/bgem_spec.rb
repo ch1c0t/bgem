@@ -2,7 +2,8 @@ require 'helper'
 
 describe do
   it do
-    output = OUTPUT.read.lines
+    target = Bgem.run 'spec/test_src/bgem/config.rb'
+    output = target.file.read.lines
 
     assert { output[0] == "module Main\n" }
     assert { output[1] == "  module Before\n" }
