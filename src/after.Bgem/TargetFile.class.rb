@@ -12,5 +12,5 @@ def write string
     end
   end
 
-  @path.write string
+  @path.write "#{string}\n"
 end
