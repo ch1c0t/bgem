@@ -1,6 +1,11 @@
 def initialize path = 'output.rb', scope = nil
   @path = Pathname path
-  @scope = eval scope if scope
+  @scope = case scope
+           when Array
+             scope
+           when String
+             eval scope
+           end
 end
 
 def write string
@@ -13,4 +18,8 @@ def write string
   end
 
   @path.write "#{string}\n"
+end
+
+def file
+  @path
 end

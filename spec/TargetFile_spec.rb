@@ -3,10 +3,9 @@ require 'tempfile'
 
 describe Bgem::TargetFile do
   it do
-    tf = described_class.new Tempfile.new, "['module M', 'class C']"
-    assert { tf.is_a? described_class }
+    target = described_class.new Tempfile.new, "['module M', 'class C']"
 
-    tf.write 'smt'
+    target.write 'smt'
 
     source = <<~S
       module M
@@ -16,6 +15,6 @@ describe Bgem::TargetFile do
       end
     S
 
-    assert { tf.instance_variable_get(:@path).read == source }
+    assert { target.file.read == source }
   end
 end
