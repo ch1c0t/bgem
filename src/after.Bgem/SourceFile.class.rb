@@ -20,6 +20,7 @@ private
 
   def source
     source = @source.indent INDENT
+    source.prepend "#{pre}\n\n" unless pre.empty?
     source.prepend "#{before}\n\n" unless before.empty?
     source.concat "\n#{after}\n" unless after.empty?
     source
@@ -36,4 +37,4 @@ private
     end
   end
 
-  concatenate_source_files :before, :after
+  concatenate_source_files :before, :after, :pre

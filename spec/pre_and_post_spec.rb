@@ -6,5 +6,7 @@ describe do
     output = target.file.read.lines
 
     assert { output[0] == "module Bgem\n" }
+    assert { output[1] == "  module Preamble\n" }
+    assert { output[2] == "    preamble\n" }
   end
 end
