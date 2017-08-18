@@ -28,12 +28,21 @@ private
 
   def self.concatenate_source_files *symbols
     symbols.each do |symbol|
-      define_method symbol do
-        pattern =  @file.dirname.join "#{__method__}.#{@constant}/*.rb"
-        Dir[pattern].sort.map do |file|
-          self.class.new(file, indent: INDENT).to_s
-        end.join "\n\n"
-      end
+      define_appendix symbol
+    end
+  end
+
+  def self.define_appendix name, path: nil
+    define_method name do
+      pattern = if path
+                  @file.dirname.join path
+                else
+                  @file.dirname.join "#{__method__}.#{@constant}/*.rb"
+                end
+
+      Dir[pattern].sort.map do |file|
+        self.class.new(file, indent: INDENT).to_s
+      end.join "\n\n"
     end
   end
 
