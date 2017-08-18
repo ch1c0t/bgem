@@ -34,11 +34,9 @@ private
 
   def self.define_appendix name, path: nil
     define_method name do
-      pattern = if path
-                  @file.dirname.join path
-                else
-                  @file.dirname.join "#{__method__}.#{@constant}/*.rb"
-                end
+      p path if path.is_a? String
+      path ||= "#{__method__}.#{@constant}/*.rb"
+      pattern = @file.dirname.join path
 
       Dir[pattern].sort.map do |file|
         self.class.new(file, indent: INDENT).to_s
