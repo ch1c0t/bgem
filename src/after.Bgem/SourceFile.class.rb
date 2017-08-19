@@ -32,18 +32,23 @@ private
     end
   end
 
-  def self.define_appendix name, path: nil
+  def self.define_appendix name
     define_method name do
-      pattern = if path
-                  @file.dirname.join path
-                else
-                  @file.dirname.join "#{__method__}.#{@constant}/*.rb"
-                end
-
+      pattern = @file.dirname.join "#{__method__}.#{@constant}/*.rb"
       Dir[pattern].sort.map do |file|
         self.class.new(file, indent: INDENT).to_s
       end.join "\n\n"
     end
   end
 
-  concatenate_source_files :before, :after, :pre
+  concatenate_source_files :pre, :before
+
+  def after
+    patterns = ["#{@constant}/*.rb", "after.#{@constant}/*.rb"].map do |pattern|
+      @file.dirname.join pattern
+    end
+
+    Dir[*patterns].sort.map do |file|
+      self.class.new(file, indent: INDENT).to_s
+    end.join "\n\n"
+  end
