@@ -8,5 +8,8 @@ describe do
     assert { output[0] == "module Bgem\n" }
     assert { output[1] == "  module Preamble\n" }
     assert { output[2] == "    preamble\n" }
+
+    assert { output[28] == "  class Config\n" }
+    assert { output[29] == "    def initialize config_file\n" }
   end
 end
