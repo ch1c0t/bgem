@@ -26,12 +26,6 @@ private
     source
   end
 
-  def self.concatenate_source_files *symbols
-    symbols.each do |symbol|
-      define_appendix symbol
-    end
-  end
-
   def self.define_appendix name
     define_method name do
       pattern = @file.dirname.join "#{__method__}.#{@constant}/*.rb"
@@ -41,7 +35,7 @@ private
     end
   end
 
-  concatenate_source_files :pre, :before
+  [:pre, :before].each { |name| define_appendix name }
 
   def after
     patterns = ["#{@constant}/*.rb", "after.#{@constant}/*.rb"].map do |pattern|
