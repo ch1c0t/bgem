@@ -43,9 +43,8 @@ private
     concatenate *patterns
   end
 
-  private
-    def concatenate *patterns
-      Dir[*patterns].sort.map do |file|
-        self.class.new(file, indent: INDENT).to_s
-      end.join "\n\n"
-    end
+  def concatenate *patterns
+    Dir[*patterns].sort.map do |file|
+      self.class.new(file, indent: INDENT).to_s
+    end.join "\n\n"
+  end
