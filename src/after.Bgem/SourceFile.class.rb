@@ -29,9 +29,7 @@ private
   def self.define_appendix name
     define_method name do
       pattern = @file.dirname.join "#{__method__}.#{@constant}/*.rb"
-      Dir[pattern].sort.map do |file|
-        self.class.new(file, indent: INDENT).to_s
-      end.join "\n\n"
+      concatenate pattern
     end
   end
 
@@ -42,7 +40,12 @@ private
       @file.dirname.join pattern
     end
 
-    Dir[*patterns].sort.map do |file|
-      self.class.new(file, indent: INDENT).to_s
-    end.join "\n\n"
+    concatenate *patterns
   end
+
+  private
+    def concatenate *patterns
+      Dir[*patterns].sort.map do |file|
+        self.class.new(file, indent: INDENT).to_s
+      end.join "\n\n"
+    end
