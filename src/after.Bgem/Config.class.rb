@@ -19,7 +19,7 @@ class DSL
     @config.output = file
   end
 
-  def inside *array_of_strings
-    @config.scope = array_of_strings
+  def inside *headers
+    @config.scope = headers
   end
 end

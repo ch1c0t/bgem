@@ -7,8 +7,8 @@ def write string
   @path.dirname.mkpath
 
   if @scope
-    @scope.each do |head_of_constant_definition|
-      string = "#{head_of_constant_definition}\n#{string.indent INDENT}\nend"
+    @scope.each do |header|
+      string = "#{header}\n#{string.indent INDENT}\nend"
     end
   end
 
