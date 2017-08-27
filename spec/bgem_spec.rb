@@ -1,6 +1,6 @@
 require 'helper'
 
-describe do
+describe Bgem do
   it do
     target = Bgem.run 'spec/test_src/bgem/config.rb'
     output = target.file.read.lines
