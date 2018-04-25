@@ -6,4 +6,6 @@ Gem::Specification.new do |g|
   g.authors = ['Anatoly Chernow']
 
   g.executables << 'bgem'
+
+  g.add_dependency 'string-indent', '>=0.0.1'
 end

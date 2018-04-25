@@ -1,10 +1,5 @@
 require 'pathname'
-
-class ::String
-  def indent number
-    lines.map { |line| "#{' '*number}#{line}" }.join
-  end
-end
+require 'string/indent'
 
 INDENT = 2
 SOURCE_FILE = Dir['src/*.rb'][0]
