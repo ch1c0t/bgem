@@ -1,4 +1,4 @@
-def initialize path = 'output.rb', scope
+def initialize path, scope
   @path = Pathname path
   @scope = scope
 end
