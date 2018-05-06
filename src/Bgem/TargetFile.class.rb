@@ -1,6 +1,6 @@
-def initialize path, scope
-  @path = Pathname path
-  @scope = scope
+def initialize config
+  @path = Pathname config.output
+  @scope = config.scope
 end
 
 def write string

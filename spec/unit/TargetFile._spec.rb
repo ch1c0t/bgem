@@ -1,9 +1,12 @@
 require 'helper'
 require 'tempfile'
+require 'ostruct'
 
 describe Bgem::TargetFile do
   it do
-    target = described_class.new Tempfile.new, ['class C', 'module M']
+    config = OpenStruct.new output: Tempfile.new,
+      scope: ['class C', 'module M']
+    target = described_class.new config
 
     target.write 'smt'
 
