@@ -1,9 +1,15 @@
-require 'hobby/devtools/rspec_helper'
 require 'bgem'
 
-=begin
-require 'fileutils'
-testing_directory = "/tmp/testing/bgem${$$}"
-FileUtils.mkdir_p testing_directory
-Dir.chroot testing_directory
-=end
+require 'rspec/power_assert'
+RSpec::PowerAssert.example_assertion_alias :assert
+RSpec::PowerAssert.example_group_assertion_alias :assert
+
+RSpec.configure do |config|
+  unless ENV['PRY']
+    require 'timeout'
+
+    config.around :each do |example|
+      Timeout.timeout 5, &example
+    end
+  end
+end
