@@ -1,10 +1,12 @@
 def initialize config
-  @path = Pathname config.output
+  @file = Pathname config.output
   @scope = config.scope
 end
 
+attr_reader :file
+
 def write string
-  @path.dirname.mkpath
+  file.dirname.mkpath
 
   if @scope
     @scope.each do |header|
@@ -12,9 +14,5 @@ def write string
     end
   end
 
-  @path.write "#{string}\n"
-end
-
-def file
-  @path
+  file.write "#{string}\n"
 end
