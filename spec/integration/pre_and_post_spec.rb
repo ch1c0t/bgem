@@ -1,8 +1,8 @@
 require 'helper'
 
-describe 'Bgem directives' do
+describe :integration do
   it do
-    target = Bgem.run 'spec/test_pre_and_post/bgem/config.rb'
+    target = Bgem.run 'spec/integration/test_pre_and_post/bgem/config.rb'
     output = target.file.read.lines
 
     assert { output[0] == "module Bgem\n" }
