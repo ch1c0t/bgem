@@ -5,7 +5,7 @@ end
 
 attr_reader :file
 
-def write string
+def [] string
   file.dirname.mkpath
 
   if @scope

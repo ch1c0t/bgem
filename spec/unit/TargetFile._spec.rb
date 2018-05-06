@@ -2,13 +2,13 @@ require 'helper'
 require 'tempfile'
 require 'ostruct'
 
-describe Bgem::TargetFile do
+describe Bgem::Write do
   it do
     config = OpenStruct.new output: Tempfile.new,
       scope: ['class C', 'module M']
-    target = described_class.new config
+    write = described_class.new config
 
-    target.write 'smt'
+    write['smt']
 
     source = <<~S
       module M
@@ -18,6 +18,6 @@ describe Bgem::TargetFile do
       end
     S
 
-    assert { target.file.read == source }
+    assert { write.file.read == source }
   end
 end
