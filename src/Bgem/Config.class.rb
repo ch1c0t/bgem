@@ -1,14 +1,14 @@
 def initialize config_file
   @entry, @output, @scope = SOURCE_FILE, 'output.rb', nil
-  DSL.new self, config_file
+  DSL.new self, (IO.read config_file)
 end
 
 attr_accessor :entry, :output, :scope
 
 class DSL
-  def initialize config, file
+  def initialize config, code
     @config = config
-    instance_eval IO.read file
+    instance_eval code
   end
 
   def entry file

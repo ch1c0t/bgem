@@ -1,6 +1,4 @@
 require 'helper'
-require 'tempfile'
-require 'ostruct'
 
 describe Bgem::Write do
   let(:file) { Tempfile.new }
