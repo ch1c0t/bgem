@@ -1,6 +1,6 @@
 def initialize file = SOURCE_FILE, indent: 0
   @file, @indent = (Pathname file), indent
-  @source = @file.read
+  @source, @dirname = @file.read, @file.dirname
   head, @type, _rb = @file.basename.to_s.split '.'
   @constant, _colon, @ancestor = head.partition ':'
 end
@@ -28,7 +28,7 @@ private
 
   def self.define_appendix name
     define_method name do
-      pattern = @file.dirname.join "#{__method__}.#{@constant}/*.rb"
+      pattern = @dirname.join "#{__method__}.#{@constant}/*.rb"
       concatenate pattern
     end
   end
@@ -37,7 +37,7 @@ private
 
   def after
     patterns = ["#{@constant}/*.rb", "after.#{@constant}/*.rb"].map do |pattern|
-      @file.dirname.join pattern
+      @dirname.join pattern
     end
 
     concatenate *patterns
