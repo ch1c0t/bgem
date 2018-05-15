@@ -9,7 +9,7 @@ class << self
   def run config_file = CONFIG_FILE
     config = Config.new config_file
     write = Write.new config
-    write[SourceFile.new(config.entry).to_s]
+    write[Output.new(config.entry).to_s]
     write
   end
 end
