@@ -1,23 +1,16 @@
-class File
+class Type
   def initialize file
-    head, @type, _rb = file.basename.to_s.split '.'
+    @name, _type, _rb = file.basename.to_s.split '.'
     @source, @dirname = file.read, file.dirname
-    @constant, _colon, @ancestor = head.partition ':'
+    setup
   end
-
-  attr_reader :constant
 
   def to_s
     "#{head}#{source}end"
   end
 
   private
-    def head
-      if @ancestor.empty?
-        "#{@type} #{@constant}\n"
-      else
-        "#{@type} #{@constant} < #{@ancestor}\n"
-      end
+    def setup
     end
 
     def source
@@ -30,7 +23,7 @@ class File
 
     def self.define_appendix name
       define_method name do
-        pattern = @dirname.join "#{__method__}.#{@constant}/*.rb"
+        pattern = @dirname.join "#{__method__}.#{@name}/*.rb"
         concatenate pattern
       end
     end
@@ -38,7 +31,7 @@ class File
     [:pre, :before].each { |name| define_appendix name }
 
     def after
-      patterns = ["#{@constant}/*.rb", "after.#{@constant}/*.rb"].map do |pattern|
+      patterns = ["#{@name}/*.rb", "after.#{@name}/*.rb"].map do |pattern|
         @dirname.join pattern
       end
 
@@ -52,16 +45,36 @@ class File
     end
 
   class Module < self
+    private
+      def head
+        "module #{@name}\n"
+      end
   end
 
   class Class < self
+    private
+      def setup
+        @name, _colon, @parent = @name.partition ':'
+      end
+
+      def head
+        if subclass?
+          "class #{@name} < #{@parent}\n"
+        else
+          "class #{@name}\n"
+        end
+      end
+
+      def subclass?
+        not @parent.empty?
+      end
   end
 end
 
 PATHS = {
   'rb' => {
-    'module' => File::Module,
-    'class'  => File::Class,
+    'module' => Type::Module,
+    'class'  => Type::Class,
   },
 }
 
