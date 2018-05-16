@@ -50,13 +50,28 @@ class File
         Output.new(file, indent: INDENT).to_s
       end.join "\n\n"
     end
+
+  class Module < self
+  end
+
+  class Class < self
+  end
 end
 
-def initialize file = SOURCE_FILE, indent: 0
+PATHS = {
+  'rb' => {
+    'module' => File::Module,
+    'class'  => File::Class,
+  },
+}
+
+def initialize file = SOURCE_FILE, indent: 0, paths: PATHS
   file, @indent = (Pathname file), indent
-  @file = File.new file
+  path = file.basename.to_s.split('.').last(2).reverse
+  type = paths.dig *path
+  @output = type.new file
 end
 
 def to_s
-  @file.to_s.indent @indent
+  @output.to_s.indent @indent
 end
