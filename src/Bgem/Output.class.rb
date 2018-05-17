@@ -1,15 +1,14 @@
-PATHS = {
-  'rb' => {
-    'module' => Type::Module,
-    'class'  => Type::Class,
-  },
-}
-
-def initialize file = SOURCE_FILE, indent: 0, paths: PATHS
+def initialize file = SOURCE_FILE, indent: 0
   file, @indent = (Pathname file), indent
-  path = file.basename.to_s.split('.').last(2).reverse
-  type = paths.dig *path
-  @output = type.new file
+  name = file.basename.to_s.split('.').last.upcase
+
+  if Ext.const_defined? name
+    ext = Ext.const_get name
+  else
+    fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{name} is not defined."
+  end
+
+  @output = ext.new file
 end
 
 def to_s

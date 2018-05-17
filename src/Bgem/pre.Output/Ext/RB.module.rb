@@ -1,3 +1,18 @@
+def self.new file
+  type = file.basename.to_s.split('.')[-2]
+
+  type = case type
+  when 'module'
+    Module
+  when 'class'
+    Class
+  else
+    fail "Don't know what to do with #{type}"
+  end
+
+  type.new file
+end
+
 def initialize file
   @name, _type, _rb = file.basename.to_s.split '.'
   @source, @dirname = file.read, file.dirname

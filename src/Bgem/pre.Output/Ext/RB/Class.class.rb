@@ -1,3 +1,5 @@
+include RB
+
 def setup
   @name, _colon, @parent = @name.partition ':'
 end
