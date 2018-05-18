@@ -1,21 +1,22 @@
-def self.new file
-  type = file.basename.to_s.split('.')[-2]
-
-  type = case type
-  when 'module'
-    Module
-  when 'class'
-    Class
-  else
-    fail "Don't know what to do with #{type}"
+def self.new dir:, source:, chain:
+  unless chain.size == 2
+    fail "#{chain}' size should be 2"
   end
 
-  type.new file
+  name, type = chain
+  constant = type.capitalize
+
+  if self.const_defined? constant
+    type = self.const_get constant
+  else
+    fail "Don't know what to do with '#{type}'. #{self}::#{constant} is not defined."
+  end
+
+  type.new dir: dir, source: source, name: name
 end
 
-def initialize file
-  @name, _type, _rb = file.basename.to_s.split '.'
-  @source, @dirname = file.read, file.dirname
+def initialize dir:, source:, name:
+  @dir, @source, @name = dir, source, name
   setup
 end
 

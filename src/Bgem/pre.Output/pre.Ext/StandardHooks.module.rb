@@ -1,6 +1,6 @@
 def self.define_appendix name
   define_method name do
-    pattern = @dirname.join "#{__method__}.#{@name}/*.rb"
+    pattern = @dir.join "#{__method__}.#{@name}/*.rb"
     concatenate pattern
   end
 end
@@ -9,7 +9,7 @@ end
 
 def after
   patterns = ["#{@name}/*.rb", "after.#{@name}/*.rb"].map do |pattern|
-    @dirname.join pattern
+    @dir.join pattern
   end
 
   concatenate *patterns
