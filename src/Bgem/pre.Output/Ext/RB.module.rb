@@ -33,7 +33,6 @@ private
   def source
     source = @source.indent INDENT
     source.prepend "#{pre}\n\n" unless pre.empty?
-    source.prepend "#{before}\n\n" unless before.empty?
-    source.concat "\n#{after}\n" unless after.empty?
+    source.concat "\n#{post}\n" unless post.empty?
     source
   end
