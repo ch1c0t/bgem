@@ -114,11 +114,8 @@ module Bgem
     
       module RB
         def self.new dir:, source:, chain:
-          unless chain.size == 2
-            fail "#{chain}' size should be 2"
-          end
-        
           name, type = chain
+          type ||= 'module'
           constant = type.capitalize
         
           if self.const_defined? constant
