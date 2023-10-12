@@ -46,14 +46,26 @@ module Bgem
   class Output
     class Ext
       module StandardHooks
+        EXTs = [
+          'rb',
+          'erb',
+        ]
+        
         def pre
-          pattern = @dir.join "#{__method__}.#{@name}/*.rb"
-          concatenate pattern
+          patterns = EXTs.flat_map do |ext|
+            ["pre.#{@name}/*.#{ext}"].map do |pattern|
+              @dir.join pattern
+            end
+          end
+        
+          concatenate *patterns
         end
         
         def post
-          patterns = ["#{@name}/*.rb", "post.#{@name}/*.rb"].map do |pattern|
-            @dir.join pattern
+          patterns = EXTs.flat_map do |ext|
+            ["#{@name}/*.#{ext}", "post.#{@name}/*.#{ext}"].map do |pattern|
+              @dir.join pattern
+            end
           end
         
           concatenate *patterns
@@ -66,6 +78,39 @@ module Bgem
         end
       end
     
+    
+      class ERB
+        def initialize dir:, source:, chain:
+          @source = source
+          @name = chain.first
+        end
+        
+        def to_s
+          <<~S
+            module #{@name}
+              class Context
+                def env
+                  binding
+                end
+              end
+        
+              def self.[] params
+                env = Context.new.env
+                params.each do |name, value|
+                  env.local_variable_set name, value
+                end
+        
+                template = <<~TEMPLATE
+                  #{@source}TEMPLATE
+        
+                require 'erb'
+                renderer = ERB.new template
+                renderer.result env
+              end
+            end
+          S
+        end
+      end
     
       module RB
         def self.new dir:, source:, chain:
@@ -141,17 +186,17 @@ module Bgem
       file, @indent = (Pathname file), indent
     
       *chain, last = file.basename.to_s.split '.'
-      name = last.upcase
+      ext = last.upcase
       source = file.read
       dir = file.dirname
     
-      if Ext.const_defined? name
-        ext = Ext.const_get name
+      if Ext.const_defined? ext
+        e = Ext.const_get ext
       else
-        fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{name} is not defined."
+        fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{ext} is not defined."
       end
     
-      @output = ext.new dir: dir, source: source, chain: chain
+      @output = e.new dir: dir, source: source, chain: chain
     end
     
     def to_s

@@ -2,17 +2,17 @@ def initialize file = SOURCE_FILE, indent: 0
   file, @indent = (Pathname file), indent
 
   *chain, last = file.basename.to_s.split '.'
-  name = last.upcase
+  ext = last.upcase
   source = file.read
   dir = file.dirname
 
-  if Ext.const_defined? name
-    ext = Ext.const_get name
+  if Ext.const_defined? ext
+    e = Ext.const_get ext
   else
-    fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{name} is not defined."
+    fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{ext} is not defined."
   end
 
-  @output = ext.new dir: dir, source: source, chain: chain
+  @output = e.new dir: dir, source: source, chain: chain
 end
 
 def to_s

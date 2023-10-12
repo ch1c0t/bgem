@@ -1,11 +1,23 @@
+EXTs = [
+  'rb',
+  'erb',
+]
+
 def pre
-  pattern = @dir.join "#{__method__}.#{@name}/*.rb"
-  concatenate pattern
+  patterns = EXTs.flat_map do |ext|
+    ["pre.#{@name}/*.#{ext}"].map do |pattern|
+      @dir.join pattern
+    end
+  end
+
+  concatenate *patterns
 end
 
 def post
-  patterns = ["#{@name}/*.rb", "post.#{@name}/*.rb"].map do |pattern|
-    @dir.join pattern
+  patterns = EXTs.flat_map do |ext|
+    ["#{@name}/*.#{ext}", "post.#{@name}/*.#{ext}"].map do |pattern|
+      @dir.join pattern
+    end
   end
 
   concatenate *patterns
