@@ -54,16 +54,15 @@ module Bgem
           
           def hook hook_name, default: false
             define_method hook_name do
-              stubs = ["#{hook_name}.#{@name}/*."]
+              directory = @dir + "#{hook_name}.#{@name}"
           
               if default
-                stubs << "#{@name}/*."
+                default_directory = @dir + @name
+                directory = default_directory unless directory.directory?
               end
           
-              patterns = EXTs.flat_map do |ext|
-                stubs.map do |string|
-                  @dir.join (string + ext)
-                end
+              patterns = EXTs.map do |ext|
+                directory.join "*.#{ext}"
               end
           
               concatenate *patterns
