@@ -46,28 +46,32 @@ module Bgem
   class Output
     class Ext
       module StandardHooks
-        EXTs = [
-          'rb',
-          'erb',
-        ]
-        
-        def self.hook hook_name, default: false
-          define_method hook_name do
-            stubs = ["#{hook_name}.#{@name}/*."]
-        
-            if default
-              stubs << "#{@name}/*."
-            end
-        
-            patterns = EXTs.flat_map do |ext|
-              stubs.map do |string|
-                @dir.join (string + ext)
+        module DSL
+          EXTs = [
+            'rb',
+            'erb',
+          ]
+          
+          def hook hook_name, default: false
+            define_method hook_name do
+              stubs = ["#{hook_name}.#{@name}/*."]
+          
+              if default
+                stubs << "#{@name}/*."
               end
+          
+              patterns = EXTs.flat_map do |ext|
+                stubs.map do |string|
+                  @dir.join (string + ext)
+                end
+              end
+          
+              concatenate *patterns
             end
-        
-            concatenate *patterns
           end
         end
+      
+        extend DSL
         
         hook :post, default: true
         hook :pre
