@@ -47,11 +47,6 @@ module Bgem
     class Ext
       module StandardHooks
         module DSL
-          EXTs = [
-            'rb',
-            'erb',
-          ]
-          
           def hook hook_name, default: false
             define_method hook_name do
               directory = @dir + "#{hook_name}.#{@name}"
@@ -61,7 +56,7 @@ module Bgem
                 directory = default_directory unless directory.directory?
               end
           
-              patterns = EXTs.map do |ext|
+              patterns = file_extensions.map do |ext|
                 directory.join "*.#{ext}"
               end
           
@@ -79,6 +74,12 @@ module Bgem
           Dir[*patterns].sort.map do |file|
             Output.new(file, indent: INDENT).to_s
           end.join "\n\n"
+        end
+        
+        def file_extensions
+          constants = Bgem::Output::Ext.constants
+          constants.delete :StandardHooks
+          constants.map &:downcase
         end
       end
     

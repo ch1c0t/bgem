@@ -1,8 +1,3 @@
-EXTs = [
-  'rb',
-  'erb',
-]
-
 def hook hook_name, default: false
   define_method hook_name do
     directory = @dir + "#{hook_name}.#{@name}"
@@ -12,7 +7,7 @@ def hook hook_name, default: false
       directory = default_directory unless directory.directory?
     end
 
-    patterns = EXTs.map do |ext|
+    patterns = file_extensions.map do |ext|
       directory.join "*.#{ext}"
     end
 

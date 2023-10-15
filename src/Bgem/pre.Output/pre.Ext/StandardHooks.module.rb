@@ -8,3 +8,9 @@ def concatenate *patterns
     Output.new(file, indent: INDENT).to_s
   end.join "\n\n"
 end
+
+def file_extensions
+  constants = Bgem::Output::Ext.constants
+  constants.delete :StandardHooks
+  constants.map &:downcase
+end
