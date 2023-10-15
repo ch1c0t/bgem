@@ -7,10 +7,6 @@ def hook hook_name, default: false
       directory = default_directory unless directory.directory?
     end
 
-    patterns = file_extensions.map do |ext|
-      directory.join "*.#{ext}"
-    end
-
-    concatenate *patterns
+    concatenate sorted_files_in directory
   end
 end
