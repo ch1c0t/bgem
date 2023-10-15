@@ -20,5 +20,23 @@ def sorted_files_in directory
     directory.join "*.#{ext}"
   end
 
-  Dir[*patterns].sort
+  order_file = directory.join 'order'
+
+  if order_file.exist?
+    order = order_file.readlines.map &:chomp
+    files = Dir[*patterns]
+
+    files_ordered_to_be_first = order.inject([]) do |array, name|
+      files_starting_with_name = files.select do |file|
+        basename = File.basename file
+        basename.start_with? "#{name}."
+      end
+      array += files_starting_with_name
+    end
+
+    other_files = files - files_ordered_to_be_first
+    files_ordered_to_be_first += other_files.sort
+  else
+    Dir[*patterns].sort
+  end
 end
