@@ -17,7 +17,7 @@ def initialize dir:, code:, name:, type:
   setup
 end
 
-attr_reader :head, :type, :name
+attr_reader :head, :type, :name, :code
 
 def to_s
   "#{head}#{body}end"
@@ -27,15 +27,18 @@ def ext
   'rb'
 end
 
-private
-  def setup
-  end
+def setup
+end
 
-  include StandardHooks
+include StandardHooks
 
-  def body
-    code = @code.indent INDENT
-    code.prepend "#{pre}\n\n" unless pre.empty?
-    code.concat "\n#{post}\n" unless post.empty?
-    code
-  end
+def body
+  wrap code
+end
+
+def wrap code
+  code = @code.indent INDENT
+  code.prepend "#{pre}\n\n" unless pre.empty?
+  code.concat "\n#{post}\n" unless post.empty?
+  code
+end
