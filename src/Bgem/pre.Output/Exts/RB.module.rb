@@ -1,26 +1,15 @@
+include Ext::Common
+include Ext::StandardHooks
+
 def self.default
   'module'
 end
 
-def initialize file_extension:, type:, name:, dir:, code:
-  @file_extension, @type, @name, @dir, @code = file_extension, type, name, dir, code
-  setup
-end
-
-attr_reader :head, :type, :name, :code
+attr_reader :head
 
 def to_s
   "#{head}#{body}end"
 end
-
-def ext
-  @file_extension
-end
-
-def setup
-end
-
-include Ext::StandardHooks
 
 def body
   wrap code

@@ -171,24 +171,33 @@ module Bgem
       
         child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code
       end
-    end
-  
-    module Exts
     
-      module ERB
+      module Common
         def initialize **kwargs
           @file_extension = kwargs[:file_extension]
           @type = kwargs[:type]
           @name = kwargs[:name]
           @dir = kwargs[:dir]
           @code = kwargs[:code]
+        
+          setup
         end
         
-        attr_reader :dir, :type, :name, :code
+        attr_reader :file_extension, :type, :name, :dir, :code
         
         def ext
-          @file_extension
+          file_extension
         end
+        
+        def setup
+        end
+      end
+    end
+  
+    module Exts
+    
+      module ERB
+        include Ext::Common
       
         class Default
           include ERB
@@ -222,29 +231,18 @@ module Bgem
       end
     
       module RB
+        include Ext::Common
+        include Ext::StandardHooks
+        
         def self.default
           'module'
         end
         
-        def initialize file_extension:, type:, name:, dir:, code:
-          @file_extension, @type, @name, @dir, @code = file_extension, type, name, dir, code
-          setup
-        end
-        
-        attr_reader :head, :type, :name, :code
+        attr_reader :head
         
         def to_s
           "#{head}#{body}end"
         end
-        
-        def ext
-          @file_extension
-        end
-        
-        def setup
-        end
-        
-        include Ext::StandardHooks
         
         def body
           wrap code
