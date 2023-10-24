@@ -39,7 +39,7 @@ module Bgem
     end
     
     def define_macros
-      Output::Ext.types.map do |type|
+      Output::Ext.file_extensions.map do |type|
         dir = @dir + type.to_s
         MacroDir.new(type, dir) if dir.directory?
       end.compact.each do |macro_dir|
@@ -112,7 +112,7 @@ module Bgem
           end
           
           def sorted_files_in directory
-            patterns = Ext.types.map do |ext|
+            patterns = Ext.file_extensions.map do |ext|
               directory.join "*.#{ext}"
             end
           
@@ -149,7 +149,7 @@ module Bgem
         hook :pre
       end
     
-      def self.types
+      def self.file_extensions
         constants = Ext.constants
         constants.delete :StandardHooks
         constants.map &:downcase

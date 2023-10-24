@@ -5,7 +5,7 @@ def concatenate files
 end
 
 def sorted_files_in directory
-  patterns = Ext.types.map do |ext|
+  patterns = Ext.file_extensions.map do |ext|
     directory.join "*.#{ext}"
   end
 

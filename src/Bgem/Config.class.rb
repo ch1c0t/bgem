@@ -8,7 +8,7 @@ def initialize config_file
 end
 
 def define_macros
-  Output::Ext.types.map do |type|
+  Output::Ext.file_extensions.map do |type|
     dir = @dir + type.to_s
     MacroDir.new(type, dir) if dir.directory?
   end.compact.each do |macro_dir|

@@ -1,4 +1,4 @@
-def self.types
+def self.file_extensions
   constants = Ext.constants
   constants.delete :StandardHooks
   constants.map &:downcase
