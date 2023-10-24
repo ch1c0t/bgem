@@ -1,15 +1,5 @@
-def self.new dir:, source:, chain:
-  name, type = chain
-  type ||= 'module'
-  constant_name = type.capitalize
-
-  if self.const_defined? constant_name
-    constant = self.const_get constant_name
-  else
-    fail "Don't know what to do with '#{type}'. #{self}::#{constant_name} is not defined."
-  end
-
-  constant.new dir: dir, code: source, name: name, type: type
+def self.default
+  'module'
 end
 
 def initialize dir:, code:, name:, type:

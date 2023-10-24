@@ -154,22 +154,28 @@ module Bgem
         constants.delete :StandardHooks
         constants.map &:downcase
       end
+      
+      def self.new file_extension:, dir:, code:, chain:
+        parent_constant = Ext.const_get file_extension.upcase
+        name, type = chain
+      
+        type ||= if parent_constant.respond_to? :default
+                   parent_constant.default
+                 else
+                   'default'
+                 end
+        constant_name = type.capitalize
+      
+        if parent_constant.const_defined? constant_name
+          child_constant = parent_constant.const_get constant_name
+        else
+          fail "Don't know what to do with '#{type}'. #{parent_constant}::#{constant_name} is not defined."
+        end
+      
+        child_constant.new dir: dir, code: code, name: name, type: type
+      end
     
       module ERB
-        def self.new dir:, source:, chain:
-          name, type = chain
-          type ||= 'default'
-          constant_name = type.capitalize
-        
-          if self.const_defined? constant_name
-            constant = self.const_get constant_name
-          else
-            fail "Don't know what to do with '#{type}'. #{self}::#{constant_name} is not defined."
-          end
-        
-          constant.new dir: dir, code: source, name: name, type: type
-        end
-        
         def initialize **kwargs
           @dir = kwargs[:dir]
           @code = kwargs[:code]
@@ -215,18 +221,8 @@ module Bgem
       end
     
       module RB
-        def self.new dir:, source:, chain:
-          name, type = chain
-          type ||= 'module'
-          constant_name = type.capitalize
-        
-          if self.const_defined? constant_name
-            constant = self.const_get constant_name
-          else
-            fail "Don't know what to do with '#{type}'. #{self}::#{constant_name} is not defined."
-          end
-        
-          constant.new dir: dir, code: source, name: name, type: type
+        def self.default
+          'module'
         end
         
         def initialize dir:, code:, name:, type:
@@ -293,18 +289,13 @@ module Bgem
     def initialize file = SOURCE_FILE, indent: 0
       file, @indent = (Pathname file), indent
     
-      *chain, last = file.basename.to_s.split '.'
-      ext = last.upcase
-      source = file.read
-      dir = file.dirname
+      *chain, file_extension = file.basename.to_s.split '.'
     
-      if Ext.const_defined? ext
-        e = Ext.const_get ext
+      if Ext.const_defined? file_extension.upcase
+        @output = Ext.new file_extension: file_extension, dir: file.dirname, code: file.read, chain: chain
       else
-        fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{ext} is not defined."
+        fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{file_extension.upcase} is not defined."
       end
-    
-      @output = e.new dir: dir, source: source, chain: chain
     end
     
     def to_s
