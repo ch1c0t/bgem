@@ -2,8 +2,8 @@ def self.default
   'module'
 end
 
-def initialize dir:, code:, name:, type:
-  @dir, @code, @name, @type = dir, code, name, type
+def initialize file_extension:, type:, name:, dir:, code:
+  @file_extension, @type, @name, @dir, @code = file_extension, type, name, dir, code
   setup
 end
 
@@ -14,7 +14,7 @@ def to_s
 end
 
 def ext
-  'rb'
+  @file_extension
 end
 
 def setup

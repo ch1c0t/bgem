@@ -1,12 +1,13 @@
 def initialize **kwargs
+  @file_extension = kwargs[:file_extension]
+  @type = kwargs[:type]
+  @name = kwargs[:name]
   @dir = kwargs[:dir]
   @code = kwargs[:code]
-  @name = kwargs[:name]
-  @type = kwargs[:type]
 end
 
 attr_reader :dir, :type, :name, :code
 
 def ext
-  'erb'
+  @file_extension
 end

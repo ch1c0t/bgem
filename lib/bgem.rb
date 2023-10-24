@@ -171,21 +171,22 @@ module Bgem
           fail "Don't know what to do with '#{type}'. #{parent_constant}::#{constant_name} is not defined."
         end
       
-        child_constant.new dir: dir, code: code, name: name, type: type
+        child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code
       end
     
       module ERB
         def initialize **kwargs
+          @file_extension = kwargs[:file_extension]
+          @type = kwargs[:type]
+          @name = kwargs[:name]
           @dir = kwargs[:dir]
           @code = kwargs[:code]
-          @name = kwargs[:name]
-          @type = kwargs[:type]
         end
         
         attr_reader :dir, :type, :name, :code
         
         def ext
-          'erb'
+          @file_extension
         end
       
         class Default
@@ -224,8 +225,8 @@ module Bgem
           'module'
         end
         
-        def initialize dir:, code:, name:, type:
-          @dir, @code, @name, @type = dir, code, name, type
+        def initialize file_extension:, type:, name:, dir:, code:
+          @file_extension, @type, @name, @dir, @code = file_extension, type, name, dir, code
           setup
         end
         
@@ -236,7 +237,7 @@ module Bgem
         end
         
         def ext
-          'rb'
+          @file_extension
         end
         
         def setup
