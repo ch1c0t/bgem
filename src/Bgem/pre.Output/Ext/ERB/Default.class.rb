@@ -1,7 +1,4 @@
-def initialize dir:, source:, chain:
-  @source = source
-  @name = chain.first
-end
+include ERB
 
 def to_s
   <<~S
@@ -19,7 +16,7 @@ def to_s
         end
 
         template = <<~TEMPLATE
-          #{@source}TEMPLATE
+          #{@code}TEMPLATE
 
         require 'erb'
         renderer = ERB.new template

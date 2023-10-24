@@ -4,14 +4,8 @@ def concatenate files
   end.join "\n\n"
 end
 
-def file_extensions
-  constants = Bgem::Output::Ext.constants
-  constants.delete :StandardHooks
-  constants.map &:downcase
-end
-
 def sorted_files_in directory
-  patterns = file_extensions.map do |ext|
+  patterns = Ext.types.map do |ext|
     directory.join "*.#{ext}"
   end
 

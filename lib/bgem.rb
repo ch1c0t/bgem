@@ -39,18 +39,11 @@ module Bgem
     end
     
     def define_macros
-      rb_directory = @dir + 'rb'
-    
-      if rb_directory.directory?
-        files = rb_directory.glob '*.rb'
-    
-        files.each do |file|
-          n = file.basename.to_s.split('.').first
-          k = Class.new { include Output::Ext::RB }
-          to_s = "define_method :to_s do\n#{file.read}\nend"
-          k.instance_eval to_s
-          Output::Ext::RB.const_set n.capitalize, k
-        end
+      Output::Ext.types.map do |type|
+        dir = @dir + type.to_s
+        MacroDir.new(type, dir) if dir.directory?
+      end.compact.each do |macro_dir|
+        macro_dir.define_macros
       end
     end
   
@@ -70,6 +63,25 @@ module Bgem
       
       def inside *headers
         @config.scope = headers
+      end
+    end
+  
+    class MacroDir
+      def initialize type, dir
+        @type, @dir = type, dir
+        @constant = Output::Ext.const_get @type.upcase
+      end
+      
+      def define_macros
+        files = @dir.glob '*.rb'
+      
+        files.each do |file|
+          n = file.basename.to_s.split('.').first
+          constant = @constant; k = Class.new { include constant }
+          to_s = "define_method :to_s do\n#{file.read}\nend"
+          k.instance_eval to_s
+          constant.const_set n.capitalize, k
+        end
       end
     end
   end
@@ -99,14 +111,8 @@ module Bgem
             end.join "\n\n"
           end
           
-          def file_extensions
-            constants = Bgem::Output::Ext.constants
-            constants.delete :StandardHooks
-            constants.map &:downcase
-          end
-          
           def sorted_files_in directory
-            patterns = file_extensions.map do |ext|
+            patterns = Ext.types.map do |ext|
               directory.join "*.#{ext}"
             end
           
@@ -143,37 +149,68 @@ module Bgem
         hook :pre
       end
     
+      def self.types
+        constants = Ext.constants
+        constants.delete :StandardHooks
+        constants.map &:downcase
+      end
     
-      class ERB
-        def initialize dir:, source:, chain:
-          @source = source
-          @name = chain.first
+      module ERB
+        def self.new dir:, source:, chain:
+          name, type = chain
+          type ||= 'default'
+          constant_name = type.capitalize
+        
+          if self.const_defined? constant_name
+            constant = self.const_get constant_name
+          else
+            fail "Don't know what to do with '#{type}'. #{self}::#{constant_name} is not defined."
+          end
+        
+          constant.new dir: dir, code: source, name: name, type: type
         end
         
-        def to_s
-          <<~S
-            module #{@name}
-              class Context
-                def env
-                  binding
+        def initialize **kwargs
+          @dir = kwargs[:dir]
+          @code = kwargs[:code]
+          @name = kwargs[:name]
+          @type = kwargs[:type]
+        end
+        
+        attr_reader :dir, :type, :name, :code
+        
+        def ext
+          'erb'
+        end
+      
+        class Default
+          include ERB
+          
+          def to_s
+            <<~S
+              module #{@name}
+                class Context
+                  def env
+                    binding
+                  end
+                end
+          
+                def self.[] params
+                  env = Context.new.env
+                  params.each do |name, value|
+                    env.local_variable_set name, value
+                  end
+          
+                  template = <<~TEMPLATE
+                    #{@code}TEMPLATE
+          
+                  require 'erb'
+                  renderer = ERB.new template
+                  renderer.result env
                 end
               end
-        
-              def self.[] params
-                env = Context.new.env
-                params.each do |name, value|
-                  env.local_variable_set name, value
-                end
-        
-                template = <<~TEMPLATE
-                  #{@source}TEMPLATE
-        
-                require 'erb'
-                renderer = ERB.new template
-                renderer.result env
-              end
-            end
-          S
+            S
+          end
         end
       end
     

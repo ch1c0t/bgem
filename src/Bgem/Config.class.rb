@@ -8,17 +8,10 @@ def initialize config_file
 end
 
 def define_macros
-  rb_directory = @dir + 'rb'
-
-  if rb_directory.directory?
-    files = rb_directory.glob '*.rb'
-
-    files.each do |file|
-      n = file.basename.to_s.split('.').first
-      k = Class.new { include Output::Ext::RB }
-      to_s = "define_method :to_s do\n#{file.read}\nend"
-      k.instance_eval to_s
-      Output::Ext::RB.const_set n.capitalize, k
-    end
+  Output::Ext.types.map do |type|
+    dir = @dir + type.to_s
+    MacroDir.new(type, dir) if dir.directory?
+  end.compact.each do |macro_dir|
+    macro_dir.define_macros
   end
 end
