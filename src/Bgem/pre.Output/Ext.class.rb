@@ -1,11 +1,9 @@
 def self.file_extensions
-  constants = Ext.constants
-  constants.delete :StandardHooks
-  constants.map &:downcase
+  Exts.constants.map &:downcase
 end
 
 def self.new file_extension:, type:, name:, dir:, code:
-  parent_constant = Ext.const_get file_extension.upcase
+  parent_constant = Exts.const_get file_extension.upcase
 
   type ||= if parent_constant.respond_to? :default
              parent_constant.default

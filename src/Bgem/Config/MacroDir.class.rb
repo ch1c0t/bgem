@@ -1,6 +1,6 @@
 def initialize type, dir
   @type, @dir = type, dir
-  @constant = Output::Ext.const_get @type.upcase
+  @constant = Output::Exts.const_get @type.upcase
 end
 
 def define_macros

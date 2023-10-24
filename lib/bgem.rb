@@ -69,7 +69,7 @@ module Bgem
     class MacroDir
       def initialize type, dir
         @type, @dir = type, dir
-        @constant = Output::Ext.const_get @type.upcase
+        @constant = Output::Exts.const_get @type.upcase
       end
       
       def define_macros
@@ -150,13 +150,11 @@ module Bgem
       end
     
       def self.file_extensions
-        constants = Ext.constants
-        constants.delete :StandardHooks
-        constants.map &:downcase
+        Exts.constants.map &:downcase
       end
       
       def self.new file_extension:, type:, name:, dir:, code:
-        parent_constant = Ext.const_get file_extension.upcase
+        parent_constant = Exts.const_get file_extension.upcase
       
         type ||= if parent_constant.respond_to? :default
                    parent_constant.default
@@ -173,6 +171,9 @@ module Bgem
       
         child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code
       end
+    end
+  
+    module Exts
     
       module ERB
         def initialize **kwargs
@@ -243,7 +244,7 @@ module Bgem
         def setup
         end
         
-        include StandardHooks
+        include Ext::StandardHooks
         
         def body
           wrap code
@@ -300,10 +301,10 @@ module Bgem
         fail "#{file} has more than two dots in its name."
       end
     
-      if Ext.const_defined? file_extension.upcase
+      if Exts.const_defined? file_extension.upcase
         @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read
       else
-        fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{file_extension.upcase} is not defined."
+        fail "Don't know what to do with #{file}. Bgem::Output::Exts::#{file_extension.upcase} is not defined."
       end
     end
     

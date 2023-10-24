@@ -12,10 +12,10 @@ def initialize file = SOURCE_FILE, indent: 0
     fail "#{file} has more than two dots in its name."
   end
 
-  if Ext.const_defined? file_extension.upcase
+  if Exts.const_defined? file_extension.upcase
     @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read
   else
-    fail "Don't know what to do with #{file}. Bgem::Output::Ext::#{file_extension.upcase} is not defined."
+    fail "Don't know what to do with #{file}. Bgem::Output::Exts::#{file_extension.upcase} is not defined."
   end
 end
 

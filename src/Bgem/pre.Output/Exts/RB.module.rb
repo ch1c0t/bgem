@@ -20,7 +20,7 @@ end
 def setup
 end
 
-include StandardHooks
+include Ext::StandardHooks
 
 def body
   wrap code
