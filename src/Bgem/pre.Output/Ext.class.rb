@@ -4,9 +4,8 @@ def self.file_extensions
   constants.map &:downcase
 end
 
-def self.new file_extension:, dir:, code:, chain:
+def self.new file_extension:, type:, name:, dir:, code:
   parent_constant = Ext.const_get file_extension.upcase
-  name, type = chain
 
   type ||= if parent_constant.respond_to? :default
              parent_constant.default
