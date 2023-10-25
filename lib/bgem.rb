@@ -10,7 +10,7 @@ module Bgem
     end
   end
 
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
   
   require 'pathname'
   require 'string/indent'

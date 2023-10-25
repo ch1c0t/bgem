@@ -1,9 +1,7 @@
-require_relative 'lib/bgem'
-
 Gem::Specification.new do |g|
   g.name    = 'bgem'
   g.files   = ['lib/bgem.rb', 'bin/bgem']
-  g.version = Bgem::VERSION
+  g.version = '0.1.1'
   g.summary = 'To make Ruby gems from macros.'
   g.authors = ['Anatoly Chernov']
   g.license = 'ISC'
