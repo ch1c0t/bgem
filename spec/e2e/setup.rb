@@ -1,12 +1,11 @@
 require_relative '../helper'
 
-def bgem
-  "#{Dir.pwd}/bin/bgem"
-end
+BGEM_DIR = Dir.pwd
+BGEM = "#{BGEM_DIR}/bin/bgem"
+PATH = Pathname "/tmp/rspec.bgem.#{$$}/e2e"
 
 RSpec.configure do |c|
   c.before :suite do
-    @path = Pathname "/tmp/rspec.bgem.#{$$}/e2e"
-    @path.mkpath
+    PATH.mkpath
   end
 end

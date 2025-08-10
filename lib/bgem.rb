@@ -283,7 +283,7 @@ module Bgem
       end
     end
   
-    def initialize file = SOURCE_FILE, indent: 0
+    def initialize file, indent: 0
       file, @indent = (Pathname file), indent
     
       parts = file.basename.to_s.split '.'
