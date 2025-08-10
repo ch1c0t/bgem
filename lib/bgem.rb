@@ -16,11 +16,9 @@ module Bgem
   require 'string/indent'
   
   INDENT = 2
-  SOURCE_FILE = Dir['src/*.rb'][0]
-  CONFIG_FILE = "#{Dir.pwd}/bgem/config.rb"
   
   class << self
-    def run config_file = CONFIG_FILE
+    def run config_file = "#{Dir.pwd}/bgem/config.rb"
       config = Config.new config_file
       write = Write.new config
       write[Output.new(config.entry).to_s]
@@ -31,7 +29,7 @@ module Bgem
   class Config
     attr_accessor :entry, :output, :scope
     def initialize config_file
-      @entry, @output, @scope = SOURCE_FILE, 'output.rb', nil
+      @entry, @output, @scope = Dir['src/*.rb'][0], 'output.rb', nil
       DSL.new self, (IO.read config_file)
     
       @dir = Pathname File.dirname config_file

@@ -5,5 +5,6 @@ gem 'rspec-power_assert'
 gem 'awesome_print'
 gem 'rake'
 gem 'rerun'
+gem 'ostruct'
 
 gemspec

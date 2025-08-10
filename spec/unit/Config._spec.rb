@@ -53,13 +53,6 @@ describe Bgem::Config do
     assert { config.scope == ['a', 'b'] }
   end
 
-  it 'gets the default entry from SOURCE_FILE' do
-    stub_const 'IO',  IOStubForDefaultEntry.new
-    stub_const 'Bgem::SOURCE_FILE', 'default_source_file.rb'
-
-    expect(config.entry).to eq 'default_source_file.rb'
-  end
-
   it 'sets the default output to output.rb' do
     stub_const 'IO',  IOStubForDefaultOutput.new
     expect(config.output).to eq 'output.rb'
