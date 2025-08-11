@@ -1,6 +1,6 @@
-def initialize config
-  @file = Pathname config.output
-  @scope = config.scope
+def initialize output
+  @file = Pathname output.file
+  @scope = output.scope
 end
 
 attr_reader :file

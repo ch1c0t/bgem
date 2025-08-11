@@ -36,25 +36,27 @@ describe Bgem::Config do
   it 'creates accessors' do
     stub_const 'IO',  IOStub.new
 
-    config.entry = 'e.rb'
-    config.output = 'o.rb'
-    config.scope = ['module M', 'class C']
+    expect(config).to be_a Bgem::Config
+    expect(config.outputs).to be_an Array
+    
+    output = config.outputs[0]
 
-    assert { config.entry == 'e.rb' }
-    assert { config.output == 'o.rb' }
-    assert { config.scope == ['module M', 'class C'] }
+    output.entry = 'e.rb'
+    output.file = 'o.rb'
+    output.scope = ['module M', 'class C']
+
+    assert { output.entry == 'e.rb' }
+    assert { output.file == 'o.rb' }
+    assert { output.scope == ['module M', 'class C'] }
   end
 
   it 'loads config file' do
     stub_const 'IO',  IOStub.new
 
-    assert { config.entry == 'entry.rb' }
-    assert { config.output == 'out.rb' }
-    assert { config.scope == ['a', 'b'] }
-  end
+    output = config.outputs[0]
 
-  it 'sets the default output to output.rb' do
-    stub_const 'IO',  IOStubForDefaultOutput.new
-    expect(config.output).to eq 'output.rb'
+    assert { output.entry == 'entry.rb' }
+    assert { output.file == 'out.rb' }
+    assert { output.scope == ['a', 'b'] }
   end
 end

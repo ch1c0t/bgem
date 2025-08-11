@@ -1,6 +1,6 @@
-attr_accessor :entry, :output, :scope
+attr_accessor :outputs
 def initialize config_file
-  @entry, @output, @scope = Dir['src/*.rb'][0], 'output.rb', nil
+  @outputs = [Output.new]
   DSL.new self, (IO.read config_file)
 
   @dir = Pathname File.dirname config_file
@@ -8,7 +8,7 @@ def initialize config_file
 end
 
 def define_macros
-  Output::Ext.file_extensions.map do |type|
+  Bgem::Output::Ext.file_extensions.map do |type|
     dir = @dir + type.to_s
     MacroDir.new(type, dir) if dir.directory?
   end.compact.each do |macro_dir|

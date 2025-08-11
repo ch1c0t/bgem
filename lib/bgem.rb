@@ -20,16 +20,21 @@ module Bgem
   class << self
     def run config_file = "#{Dir.pwd}/bgem/config.rb"
       config = Config.new config_file
-      write = Write.new config
-      write[Output.new(config.entry).to_s]
-      write
+  
+      writes = config.outputs.map do |output|
+        write = Write.new output
+        write[Output.new(output.entry).to_s]
+        write
+      end
+  
+      writes[0]
     end
   end
 
   class Config
-    attr_accessor :entry, :output, :scope
+    attr_accessor :outputs
     def initialize config_file
-      @entry, @output, @scope = Dir['src/*.rb'][0], 'output.rb', nil
+      @outputs = [Output.new]
       DSL.new self, (IO.read config_file)
     
       @dir = Pathname File.dirname config_file
@@ -37,7 +42,7 @@ module Bgem
     end
     
     def define_macros
-      Output::Ext.file_extensions.map do |type|
+      Bgem::Output::Ext.file_extensions.map do |type|
         dir = @dir + type.to_s
         MacroDir.new(type, dir) if dir.directory?
       end.compact.each do |macro_dir|
@@ -52,22 +57,44 @@ module Bgem
       end
       
       def entry file
-        @config.entry = file
-      end
-      
-      def output file
-        @config.output = file
+        @config.outputs[0].entry = file
       end
       
       def inside *headers
-        @config.scope = headers
+        @config.outputs[0].scope = headers
+      end
+      
+      def output file_or_type = :ruby, &block
+        if block_given?
+          p 'from output block'
+          instance_eval &block
+        else
+          case file_or_type
+          when String
+            path_to_file = file_or_type
+            @config.outputs[0].file = path_to_file
+          end
+        end
+      end
+      
+      def from name, file
+        first_output = @config.outputs[0]
+      
+        if first_output.file.nil?
+          new_output = Output.new file
+          new_output.set_entry_from_prefix name
+          @config.outputs << new_output
+        else
+          first_output.set_entry_from_prefix name
+          first_output.file = file
+        end
       end
     end
   
     class MacroDir
       def initialize type, dir
         @type, @dir = type, dir
-        @constant = Output::Exts.const_get @type.upcase
+        @constant = Bgem::Output::Exts.const_get @type.upcase
       end
       
       def define_macros
@@ -79,6 +106,25 @@ module Bgem
           to_s = "define_method :to_s do\n#{file.read}\nend"
           k.instance_eval to_s
           constant.const_set n.capitalize, k
+        end
+      end
+    end
+  
+    class Output
+      attr_accessor :entry, :file, :scope
+      def initialize(file = nil, entry = nil, scope = nil)
+        @file = file
+      
+        @potential_entries = Dir['src/*.rb']
+        @entry ||= @potential_entries[0]
+      
+        @scope = scope
+      end
+      
+      def set_entry_from_prefix name
+        @entry = @potential_entries.find do |file|
+          basename = File.basename file
+          basename.start_with? "#{name}."
         end
       end
     end
@@ -310,9 +356,9 @@ module Bgem
   end
 
   class Write
-    def initialize config
-      @file = Pathname config.output
-      @scope = config.scope
+    def initialize output
+      @file = Pathname output.file
+      @scope = output.scope
     end
     
     attr_reader :file

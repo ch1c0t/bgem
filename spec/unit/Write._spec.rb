@@ -3,16 +3,16 @@ require 'helper'
 describe Bgem::Write do
   let(:file) { Tempfile.new }
 
-  let :config do
-    OpenStruct.new output: file,
+  let :config_output do
+    OpenStruct.new file: file,
       scope: ['class C', 'module M']
   end
 
-  let(:write) { described_class.new config }
+  let(:write) { described_class.new config_output }
 
   it 'writes newlines at the end' do
-    config = OpenStruct.new output: file
-    write = described_class.new config
+    config_output = OpenStruct.new file: file
+    write = described_class.new config_output
 
     write['smt']
     expect(file.read).to eq "smt\n"
