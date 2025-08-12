@@ -1,3 +1,10 @@
 outputs:
   Bgem: lib/bgem.rb
-  Crystal: lib/bgem/crystal.rb
+  Crystal:
+    to: lib/bgem/crystal.rb
+    inside: module Bgem
+  Nested:
+    to: lib/m/c/nested.rb
+    inside:
+      - class C
+      - module M

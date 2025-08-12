@@ -1,4 +1,4 @@
-attr_accessor :entry, :file, :scope
+attr_accessor :file, :entry, :scope
 def initialize(file = nil, entry = nil, scope = nil)
   @file = file
 
