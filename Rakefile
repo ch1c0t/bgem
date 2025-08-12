@@ -1,4 +1,6 @@
-task :build do
+require 'bundler/gem_tasks'
+
+task :bgem do
   sh 'bundle exec bgem'
 end
 
@@ -10,4 +12,4 @@ task :dev do
   sh 'bundle exec rerun -p "src/**/*" bundle exec rake'
 end
 
-task :default => [:build, :test]
+task :default => [:bgem, :test]
