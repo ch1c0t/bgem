@@ -1,0 +1,3 @@
+outputs:
+  Bgem: lib/bgem.rb
+  Crystal: lib/bgem/crystal.rb

@@ -18,7 +18,7 @@ module Bgem
   INDENT = 2
   
   class << self
-    def run config_file = "#{Dir.pwd}/bgem/config.rb"
+    def run config_file = find_config
       config = Config.new config_file
   
       writes = config.outputs.map do |output|
@@ -29,13 +29,32 @@ module Bgem
   
       writes[0]
     end
+  
+    def find_config
+      ruby_config = Pathname "#{Dir.pwd}/bgem/config.rb"
+      yaml_config = Pathname "#{Dir.pwd}/bgem/config.yml"
+  
+      return ruby_config if ruby_config.file?
+      return yaml_config if yaml_config.file?
+      fail "No config was found in #{Dir.pwd}"
+    end
   end
 
   class Config
     attr_accessor :outputs
     def initialize config_file
       @outputs = [Output.new]
-      DSL.new self, (IO.read config_file)
+      config_file = Pathname config_file
+    
+      case config_file.extname
+      when '.rb'
+        DSL.new self, (IO.read config_file)
+      when '.yml'
+        require 'yaml'
+        FromYAML[self, config_file]
+      else
+        fail "Unknown config format: #{config_file}"
+      end
     
       @dir = Pathname File.dirname config_file
       define_macros
@@ -64,29 +83,25 @@ module Bgem
         @config.outputs[0].scope = headers
       end
       
-      def output file_or_type = :ruby, &block
-        if block_given?
-          p 'from output block'
-          instance_eval &block
-        else
-          case file_or_type
-          when String
-            path_to_file = file_or_type
-            @config.outputs[0].file = path_to_file
-          end
-        end
+      def output file
+        @config.outputs[0].file = file
       end
+    end
+  
+    module FromYAML
+      extend self
       
-      def from name, file
-        first_output = @config.outputs[0]
+      def [] config, path_to_config
+        yml = YAML.load_file path_to_config
       
-        if first_output.file.nil?
-          new_output = Output.new file
-          new_output.set_entry_from_prefix name
-          @config.outputs << new_output
+        if outputs = yml['outputs']
+          config.outputs = outputs.map do |name, path_to_file|
+            output = Output.new path_to_file
+            output.set_entry_from_prefix name
+            output
+          end
         else
-          first_output.set_entry_from_prefix name
-          first_output.file = file
+          fail "A YAML config must define a Hash with the field 'outputs'. #{path_to_config} does not."
         end
       end
     end

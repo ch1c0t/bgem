@@ -3,8 +3,6 @@ require 'helper'
 describe Bgem::Config do
   class IOStub
     def read config_file
-      fail unless config_file == '_some_config.rb'
-
       <<~S
         entry 'entry.rb'
         output 'out.rb'

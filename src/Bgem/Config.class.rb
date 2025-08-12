@@ -1,7 +1,17 @@
 attr_accessor :outputs
 def initialize config_file
   @outputs = [Output.new]
-  DSL.new self, (IO.read config_file)
+  config_file = Pathname config_file
+
+  case config_file.extname
+  when '.rb'
+    DSL.new self, (IO.read config_file)
+  when '.yml'
+    require 'yaml'
+    FromYAML[self, config_file]
+  else
+    fail "Unknown config format: #{config_file}"
+  end
 
   @dir = Pathname File.dirname config_file
   define_macros
