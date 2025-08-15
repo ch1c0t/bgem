@@ -1,1 +1,0 @@
-output 'lib/bgem.rb'

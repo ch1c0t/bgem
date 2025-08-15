@@ -1,0 +1,6 @@
+outputs:
+  Bgem: lib/bgem.rb
+  Crystal:
+    to: lib/bgem/crystal.rb
+    inside:
+      - module Bgem

@@ -95,6 +95,22 @@ module Bgem
         yml = YAML.load_file path_to_config
       
         if outputs = yml['outputs']
+          ParseOutputs[config, outputs]
+        end
+      
+        if target = yml['make']
+          case target
+          when 'crystal.app'
+            require 'bgem/crystal'
+            Bgem::Crystal.make
+          end
+        end
+      end
+    
+      module ParseOutputs
+        extend self
+        
+        def [] config, outputs
           config.outputs = outputs.map do |name, spec|
             case spec
             when String
@@ -104,7 +120,7 @@ module Bgem
             when Hash
               output = Output.new spec['to']
               output.set_entry_from_prefix name
-      
+        
               scope = spec['inside']
               case scope
               when String
@@ -113,11 +129,9 @@ module Bgem
                 output.scope = scope
               end
             end
-      
+        
             output
           end
-        else
-          fail "A YAML config must define a Hash with the field 'outputs'. #{path_to_config} does not."
         end
       end
     end
