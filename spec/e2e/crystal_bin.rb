@@ -81,4 +81,26 @@ shared_examples 'crystal_bin' do
     HELP
     expect(help_file.read).to eq help_message
   end
+
+  it 'takes custom help messages from src.source/bin/' do
+    help_file = src_bin.join('tmux.project/print_help.cr')
+    expect(help_file.file?).to be_truthy
+
+    help_message = <<~HELP
+      HELP_MESSAGE = <<-S
+      To create Tmux projects.
+
+      tmux.project [DIRECTORY]
+
+        DIRECTORY
+          is the base directory for the project.
+          If not specified, the current working directory will be used.
+      S
+
+      def print_help
+        puts HELP_MESSAGE
+      end
+    HELP
+    expect(help_file.read).to eq help_message
+  end
 end

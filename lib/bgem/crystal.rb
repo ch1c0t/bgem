@@ -38,6 +38,16 @@ module Bgem
     end
   
     class Target
+      class ::Pathname
+        def binpath
+          @binpath ||= dirname.join basename.to_s.delete_suffix '.cr'
+        end
+      
+        def help_file
+          binpath.join 'help'
+        end
+      end
+      
       attr_reader :entry_file, :basename, :dirname
       def initialize entry_file
         @src_bin = Pathname 'src/bin'
@@ -86,18 +96,26 @@ module Bgem
         path = @src_bin.join(dirname)
         path.mkpath
       
-        help_file = path.join 'print_help.cr'
-        help_message = <<~HELP
+        file = path.join 'print_help.cr'
+        file.write source_to_print_help
+      end
+      
+      def source_to_print_help
+        message = if entry_file.help_file.file?
+          entry_file.help_file.read
+        else
+          "A help message for #{dirname}."
+        end
+      
+        <<~HELP
           HELP_MESSAGE = <<-S
-          A help message for puts.
+          #{message.chomp}
           S
       
           def print_help
             puts HELP_MESSAGE
           end
         HELP
-      
-        help_file.write help_message
       end
     end
   end
