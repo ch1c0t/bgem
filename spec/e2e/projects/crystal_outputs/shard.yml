@@ -1,0 +1,15 @@
+---
+name: tmux.select-or-create
+version: 0.1.0
+authors:
+- Anatoly Chernov <chertoly@gmail.com>
+targets:
+  tmux.project:
+    main: src/bin/tmux.project.cr
+dependencies:
+  find:
+    github: ch1c0t/crystal.find
+  memoization:
+    github: davidrunger/memoization
+crystal: ">= 1.15.1"
+license: MIT

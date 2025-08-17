@@ -1,5 +1,66 @@
 module Bgem
   module Crystal
+    module Exts
+    
+      module CR
+        include Bgem::Output::Ext::Common
+        include Bgem::Output::Ext::StandardHooks
+        
+        def self.default
+          'module'
+        end
+        
+        attr_reader :head
+        
+        def to_s
+          "#{head}#{body}end"
+        end
+        
+        def body
+          wrap code
+        end
+        
+        def wrap code
+          code = @code.indent INDENT
+          code.prepend "#{pre}\n\n" unless pre.empty?
+          code.concat "\n#{post}\n" unless post.empty?
+          code
+        end
+      
+        class Class
+          include CR
+          
+          def setup
+            @name, _colon, @parent = @name.partition ':'
+          end
+          
+          def head
+            if subclass?
+              "class #{@name} < #{@parent}\n"
+            else
+              "class #{@name}\n"
+            end
+          end
+          
+          def subclass?
+            not @parent.empty?
+          end
+        end
+      
+        class Module
+          include CR
+          
+          def head
+            "module #{@name}\n"
+          end
+        end
+      end
+    end
+  
+    Exts.constants.each do |symbol|
+      Bgem::Output::Exts.const_set symbol, (Exts.const_get symbol)
+    end
+    
     extend self
     
     def make
@@ -9,15 +70,15 @@ module Bgem
   
     class Project
       def initialize
-        @source_dir = Pathname 'src.source'
-        fail "Expected to find a source directory at #{@source_dir}" unless @source_dir.directory?
+        @source_dir = SourceDir.new Pathname 'src.source'
+        @entry_files_in_bin = @source_dir.entry_files_in_bin
       
         make_src_bin
         update_shard_targets
+        make_src
       end
       
       def make_src_bin
-        @entry_files_in_bin = @source_dir.glob('bin/*.cr')
         @entry_files_in_bin.each do |file|
           Target.new file
         end
@@ -34,6 +95,59 @@ module Bgem
         end.to_h
       
         file.write data.to_yaml
+      end
+      
+      def make_src
+        @source_dir.entry_files.each(&:compile)
+      end
+    
+      class SourceDir
+        attr_reader :path
+        def initialize path
+          fail "#{path} is not a directory" unless path.directory?
+          @path = path
+        end
+        
+        def entry_files_in_bin
+          path.glob 'bin/*.cr'
+        end
+        
+        def entry_files
+          @entry_files ||= path.glob('*.cr').map do |file|
+            EntryFile.new file
+          end
+        end
+      
+        class EntryFile
+          attr_reader :path
+          def initialize path
+            @path = path
+          end
+          
+          def name_in_pascal_case
+            @name_in_pascal_case ||= path.basename.to_s.split('.')[0]
+          end
+          
+          def name_in_snake_case
+            @name_in_snake_case ||= name_in_pascal_case
+              .split(/([A-Z][a-z]+)/)
+              .delete_if(&:empty?)
+              .map(&:downcase)
+              .join('_')
+          end
+          
+          def target_file
+            @target_file ||= Pathname "src/#{name_in_snake_case}.cr"
+          end
+          
+          def output
+            @output ||= Bgem::Output.new path
+          end
+          
+          def compile
+            target_file.write output.to_s
+          end
+        end
       end
     end
   

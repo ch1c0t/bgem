@@ -1,13 +1,13 @@
 def initialize
-  @source_dir = Pathname 'src.source'
-  fail "Expected to find a source directory at #{@source_dir}" unless @source_dir.directory?
+  @source_dir = SourceDir.new Pathname 'src.source'
+  @entry_files_in_bin = @source_dir.entry_files_in_bin
 
   make_src_bin
   update_shard_targets
+  make_src
 end
 
 def make_src_bin
-  @entry_files_in_bin = @source_dir.glob('bin/*.cr')
   @entry_files_in_bin.each do |file|
     Target.new file
   end
@@ -24,4 +24,8 @@ def update_shard_targets
   end.to_h
 
   file.write data.to_yaml
+end
+
+def make_src
+  @source_dir.entry_files.each(&:compile)
 end

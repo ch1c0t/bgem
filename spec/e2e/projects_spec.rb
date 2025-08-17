@@ -1,6 +1,6 @@
 require_relative 'setup'
 
-projects = Dir['spec/e2e/projects/*'].each do |project_directory|
+Dir['spec/e2e/projects/*'].each do |project_directory|
   project_name = File.basename project_directory 
   describe project_directory do
     before :all do

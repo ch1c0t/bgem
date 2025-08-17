@@ -1,0 +1,7 @@
+To create Tmux projects.
+
+tmux.project [DIRECTORY]
+
+  DIRECTORY
+    is the base directory for the project.
+    If not specified, the current working directory will be used.
