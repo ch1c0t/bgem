@@ -18,4 +18,18 @@ shared_examples 'crystal_outputs' do
 
     expect(tmux_file.read).to eq expected
   end
+
+  it 'uses src.source/PascalCase.require to make src/pascal_case.cr' do
+    file = src.join 'pascal_case.cr'
+    expected = <<~S.chomp
+      require "colorize"
+      require "./tmux"
+
+      module PascalCase
+        puts Tmux.to_s.colorize.blue
+      end
+    S
+
+    expect(file.read).to eq expected
+  end
 end

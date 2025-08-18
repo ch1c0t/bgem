@@ -1,0 +1,1 @@
+require "../pascal_case"
