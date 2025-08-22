@@ -88,10 +88,10 @@ module Bgem
             renderer = ::ERB.new code
             code = renderer.result env
           
-            <<~S
-          module #{name}
-          #{code.indent INDENT}end
-          S
+            crystal code
+          end
+          
+          def crystal code
             type = 'module' if type == 'default'
             cr = Bgem::Output::Ext.new file_extension: 'cr', type: type, name: name, dir: dir, code: code, params: params
             cr.to_s
