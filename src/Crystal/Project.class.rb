@@ -9,7 +9,7 @@ end
 
 def make_src_bin
   @entry_files_in_bin.each do |file|
-    Target.new file
+    Target.new(file).compile
   end
 end
 

@@ -1,0 +1,7 @@
+alias Value = <%= in_parens %>
+
+def self.in(options : Array(Value))
+  options = Options.from options
+  app = App.new options
+  app.return_selected
+end

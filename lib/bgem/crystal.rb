@@ -64,10 +64,61 @@ module Bgem
           end
         end
       end
+    
+      module ERB
+        include Bgem::Output::Ext::Common
+      
+        class Default
+          include ERB
+          
+          class Context
+            def env
+              binding
+            end
+          end
+          
+          def to_s
+            require 'erb'
+          
+            env = Context.new.env
+            params.each do |name, value|
+              env.local_variable_set name, value
+            end
+          
+            renderer = ::ERB.new code
+            code = renderer.result env
+          
+            <<~S
+          module #{name}
+          #{code.indent INDENT}end
+          S
+            type = 'module' if type == 'default'
+            cr = Bgem::Output::Ext.new file_extension: 'cr', type: type, name: name, dir: dir, code: code, params: params
+            cr.to_s
+          end
+        end
+      end
+    end
+  
+    module NameHelpers
+      def name_in_pascal_case
+        path = @path || @entry_file
+        @name_in_pascal_case ||= path.basename.to_s.split('.')[0]
+      end
+      
+      def name_in_snake_case
+        @name_in_snake_case ||= name_in_pascal_case
+          .split(/([A-Z][a-z]+)/)
+          .delete_if(&:empty?)
+          .map(&:downcase)
+          .join('_')
+      end
     end
   
     Exts.constants.each do |symbol|
-      Bgem::Output::Exts.const_set symbol, (Exts.const_get symbol)
+      exts = Bgem::Output::Exts
+      (exts.send :remove_const, symbol) if exts.const_defined? symbol
+      exts.const_set symbol, (Exts.const_get symbol)
     end
     
     extend self
@@ -75,6 +126,35 @@ module Bgem
     def make
       Project.new
       exit
+    end
+  
+    class Macro
+      def initialize entry_file
+        @entry_file = entry_file
+      end
+      
+      include NameHelpers
+      
+      def process lines
+        code = nil
+      
+        lines.map! do |line|
+          if line.include? "#{name_in_pascal_case}("
+            code = create_code_for_line line
+            line.sub /\s*\(.*?\)/, ''
+          else
+            line
+          end
+        end
+      
+        [lines, code]
+      end
+      
+      def create_code_for_line line
+        in_parens = line[/\(.*?\)/][1...-1]
+        params = { in_parens: in_parens }
+        Output.new(@entry_file, params: params).to_s
+      end
     end
   
     class Project
@@ -89,7 +169,7 @@ module Bgem
       
       def make_src_bin
         @entry_files_in_bin.each do |file|
-          Target.new file
+          Target.new(file).compile
         end
       end
       
@@ -133,17 +213,7 @@ module Bgem
             @path = path
           end
           
-          def name_in_pascal_case
-            @name_in_pascal_case ||= path.basename.to_s.split('.')[0]
-          end
-          
-          def name_in_snake_case
-            @name_in_snake_case ||= name_in_pascal_case
-              .split(/([A-Z][a-z]+)/)
-              .delete_if(&:empty?)
-              .map(&:downcase)
-              .join('_')
-          end
+          include NameHelpers
           
           def target_file
             @target_file ||= Pathname "src/#{name_in_snake_case}.cr"
@@ -161,84 +231,132 @@ module Bgem
     end
   
     class Target
-      class ::Pathname
-        def binpath
-          @binpath ||= dirname.join basename.to_s.delete_suffix '.cr'
-        end
-      
-        def help_file
-          binpath.join 'help'
-        end
-      end
-      
-      attr_reader :entry_file, :basename, :dirname
       def initialize entry_file
-        @src_bin = Pathname 'src/bin'
-        @src_bin.mkpath
-      
-        @entry_file = entry_file
-        @basename = entry_file.basename
-        @dirname = basename.to_s.delete_suffix '.cr'
-      
-        make_target_file
-        make_help_file
+        @entry_file = EntryFile.new entry_file
+        @help_file = HelpFile.new @entry_file
       end
       
-      def shard_version
-        YAML.load_file('shard.yml')['version']
+      def compile
+        @entry_file.compile
+        @help_file.compile
       end
+    
+      class EntryFile
+        module Helpers
+          def target_file
+            @target_file ||= Pathname "src/bin/#{basename}"
+          end
+          
+          def target_path
+            @target_path ||= Pathname "src/bin/#{basename_without_ext}"
+          end
+          
+          def shard_version
+            YAML.load_file('shard.yml')['version']
+          end
+          
+          def preamble
+            <<~S
+              require "./#{basename_without_ext}/*"
+          
+              VERSION = "#{shard_version}"
+          
+              case ARGV.size
+              when 1
+                case ARGV[0]
+                when "-v", "version", "--version"
+                  puts VERSION
+                  exit
+                when "-h", "help", "--help"
+                  print_help
+                  exit
+                end
+              end
+            S
+          end
+        end
       
-      def make_target_file
-        main_body = entry_file.read
-        preamble = <<~S
-          require "./#{dirname}/*"
-      
-          VERSION = "#{shard_version}"
-      
-          case ARGV.size
-          when 1
-            case ARGV[0]
-            when "-v", "version", "--version"
-              puts VERSION
-              exit
-            when "-h", "help", "--help"
-              print_help
-              exit
+        module MacroExpansions
+          def src_macros
+            @src_macros ||= Pathname 'src.macros'
+          end
+          
+          def macros
+            @macros ||= src_macros.glob('*.erb').map { |file| Macro.new file }
+          end
+          
+          def apply_macros
+            macros.each do |macro|
+              @lines, code = macro.process lines
+              target_path.join("#{macro.name_in_snake_case}.cr").write code if code
             end
           end
-        S
-      
-        target_file = @src_bin.join basename
-        target_file.write <<~S.chomp
-          #{preamble}
-          #{main_body}
-        S
-      end
-      
-      def make_help_file
-        path = @src_bin.join(dirname)
-        path.mkpath
-      
-        file = path.join 'print_help.cr'
-        file.write source_to_print_help
-      end
-      
-      def source_to_print_help
-        message = if entry_file.help_file.file?
-          entry_file.help_file.read
-        else
-          "A help message for #{dirname}."
         end
       
-        <<~HELP
-          HELP_MESSAGE = <<-S
-          #{message.chomp}
+        attr_reader :path_to_file, 
+          :lines,
+          :basename,
+          :basename_without_ext,
+          :path_to_related_files
+        def initialize path_to_file
+          @path_to_file = path_to_file
+          @lines = path_to_file.readlines
+          @basename = path_to_file.basename
+          @basename_without_ext = basename.to_s.delete_suffix '.cr'
+          @path_to_related_files = path_to_file.dirname.join basename_without_ext
+        end
+        
+        include Helpers
+        include MacroExpansions
+        
+        def body
+          lines.join
+        end
+        
+        def compile
+          target_path.mkpath
+          apply_macros
+          target_file.write <<~S.chomp
+            #{preamble}
+            #{body}
           S
-      
-          def print_help
-            puts HELP_MESSAGE
+        end
+      end
+    
+      class HelpFile
+        attr_reader :message, :entry_file
+        def initialize entry_file
+          @entry_file = entry_file
+          @message = if path_to_help_message.file?
+            path_to_help_message.read
+          else
+            "A help message for #{entry_file.basename_without_ext}."
           end
-        HELP
+        end
+        
+        def path_to_help_message
+          @path_to_help_message ||= entry_file.path_to_related_files.join 'help'
+        end
+        
+        def code
+          <<~HELP
+            HELP_MESSAGE = <<-S
+            #{message.chomp}
+            S
+        
+            def print_help
+              puts HELP_MESSAGE
+            end
+          HELP
+        end
+        
+        def target_file
+          @target_file ||= entry_file.target_path.join 'print_help.cr'
+        end
+        
+        def compile
+          target_file.write code
+        end
       end
     end
   end

@@ -4,11 +4,12 @@ def initialize **kwargs
   @name = kwargs[:name]
   @dir = kwargs[:dir]
   @code = kwargs[:code]
+  @params = kwargs[:params]
 
   setup
 end
 
-attr_reader :file_extension, :type, :name, :dir, :code
+attr_reader :file_extension, :type, :name, :dir, :code, :params
 
 def ext
   file_extension

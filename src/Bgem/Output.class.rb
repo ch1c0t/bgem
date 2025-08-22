@@ -1,4 +1,4 @@
-def initialize file, indent: 0
+def initialize file, indent: 0, params: {}
   file, @indent = (Pathname file), indent
 
   parts = file.basename.to_s.split '.'
@@ -13,7 +13,7 @@ def initialize file, indent: 0
   end
 
   if Exts.const_defined? file_extension.upcase
-    @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read
+    @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read, params: params
   else
     fail "Don't know what to do with #{file}. Bgem::Output::Exts::#{file_extension.upcase} is not defined."
   end

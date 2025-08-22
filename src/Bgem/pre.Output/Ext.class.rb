@@ -2,7 +2,7 @@ def self.file_extensions
   Exts.constants.map &:downcase
 end
 
-def self.new file_extension:, type:, name:, dir:, code:
+def self.new file_extension:, type:, name:, dir:, code:, params:
   parent_constant = Exts.const_get file_extension.upcase
 
   type ||= if parent_constant.respond_to? :default
@@ -18,5 +18,5 @@ def self.new file_extension:, type:, name:, dir:, code:
     fail "Don't know what to do with '#{type}'. #{parent_constant}::#{constant_name} is not defined."
   end
 
-  child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code
+  child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code, params: params
 end

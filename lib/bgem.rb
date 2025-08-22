@@ -242,7 +242,7 @@ module Bgem
         Exts.constants.map &:downcase
       end
       
-      def self.new file_extension:, type:, name:, dir:, code:
+      def self.new file_extension:, type:, name:, dir:, code:, params:
         parent_constant = Exts.const_get file_extension.upcase
       
         type ||= if parent_constant.respond_to? :default
@@ -258,7 +258,7 @@ module Bgem
           fail "Don't know what to do with '#{type}'. #{parent_constant}::#{constant_name} is not defined."
         end
       
-        child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code
+        child_constant.new file_extension: file_extension, type: type, name: name, dir: dir, code: code, params: params
       end
     
       module Common
@@ -268,11 +268,12 @@ module Bgem
           @name = kwargs[:name]
           @dir = kwargs[:dir]
           @code = kwargs[:code]
+          @params = kwargs[:params]
         
           setup
         end
         
-        attr_reader :file_extension, :type, :name, :dir, :code
+        attr_reader :file_extension, :type, :name, :dir, :code, :params
         
         def ext
           file_extension
@@ -374,7 +375,7 @@ module Bgem
       end
     end
   
-    def initialize file, indent: 0
+    def initialize file, indent: 0, params: {}
       file, @indent = (Pathname file), indent
     
       parts = file.basename.to_s.split '.'
@@ -389,7 +390,7 @@ module Bgem
       end
     
       if Exts.const_defined? file_extension.upcase
-        @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read
+        @output = Ext.new file_extension: file_extension, type: type, name: name, dir: file.dirname, code: file.read, params: params
       else
         fail "Don't know what to do with #{file}. Bgem::Output::Exts::#{file_extension.upcase} is not defined."
       end
