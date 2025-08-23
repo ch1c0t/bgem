@@ -1,4 +1,4 @@
-VERSION = '0.2.0'
+VERSION = '0.2.2'
 
 require 'pathname'
 require 'string/indent'
