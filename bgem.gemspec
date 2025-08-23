@@ -1,7 +1,7 @@
 Gem::Specification.new do |g|
   g.name    = 'bgem'
-  g.files   = ['lib/bgem.rb', 'bin/bgem']
-  g.version = '0.2.0'
+  g.files   = ['bin/bgem', 'lib/bgem.rb', 'lib/bgem/crystal.rb']
+  g.version = '0.2.1'
   g.summary = 'To make anything from macros.'
   g.authors = ['Anatoly Chernov']
   g.license = 'ISC'
