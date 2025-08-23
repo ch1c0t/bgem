@@ -1,5 +1,5 @@
 def initialize entry_file
-  @entry_file = entry_file
+  @entry_file = Pathname entry_file
 end
 
 include NameHelpers

@@ -130,7 +130,7 @@ module Bgem
   
     class Macro
       def initialize entry_file
-        @entry_file = entry_file
+        @entry_file = Pathname entry_file
       end
       
       include NameHelpers
@@ -278,11 +278,11 @@ module Bgem
       
         module MacroExpansions
           def src_macros
-            @src_macros ||= Pathname 'src.macros'
+            @src_macros ||= Dir['src.macros/*.erb', 'lib/*/src.macros/*.erb']
           end
           
           def macros
-            @macros ||= src_macros.glob('*.erb').map { |file| Macro.new file }
+            @macros ||= src_macros.map { |file| Macro.new file }
           end
           
           def apply_macros
