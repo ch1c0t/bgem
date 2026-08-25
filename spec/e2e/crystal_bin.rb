@@ -8,6 +8,7 @@ shared_examples 'crystal_bin' do
     basenames = files.map(&:basename).map(&:to_s)
     expect(basenames).to eq [
       "puts.cr",
+      "related.cr",
       "tmux.close-project.cr",
       "tmux.project.cr",
       "tmux.select-or-create-within-current-project.cr",
@@ -25,6 +26,8 @@ shared_examples 'crystal_bin' do
       targets:
         puts:
           main: src/bin/puts.cr
+        related:
+          main: src/bin/related.cr
         tmux.close-project:
           main: src/bin/tmux.close-project.cr
         tmux.project:
@@ -102,5 +105,34 @@ shared_examples 'crystal_bin' do
       end
     HELP
     expect(help_file.read).to eq help_message
+  end
+
+  it 'adds related *.cr files to the preamble of each main file' do
+    actual = src_bin.join('related.cr').read
+    expected = <<~S
+      require "./related/*"
+
+      VERSION = "0.1.0"
+
+      case ARGV.size
+      when 1
+        case ARGV[0]
+        when "-v", "version", "--version"
+          puts VERSION
+          exit
+        when "-h", "help", "--help"
+          print_help
+          exit
+        end
+      end
+
+      def global_method : String
+        "a string"
+      end
+
+      p global_method
+    S
+
+    expect(actual).to eq expected
   end
 end

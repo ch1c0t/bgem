@@ -1,0 +1,1 @@
+p global_method
