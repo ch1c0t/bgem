@@ -6,4 +6,11 @@ class ::String
       .map(&:downcase)
       .join('_')
   end
+
+  def to_pascal_case
+    self
+      .split('_')
+      .map(&:capitalize)
+      .join
+  end
 end

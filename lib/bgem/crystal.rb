@@ -36,7 +36,7 @@ module Bgem
                               end
         end
       
-        class Abstractstruct
+        class AbstractStruct
           include CR
           
           def head

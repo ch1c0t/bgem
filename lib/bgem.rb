@@ -21,6 +21,13 @@ module Bgem
             .map(&:downcase)
             .join('_')
         end
+      
+        def to_pascal_case
+          self
+            .split('_')
+            .map(&:capitalize)
+            .join
+        end
       end
     end
   end
@@ -265,7 +272,7 @@ module Bgem
                  else
                    'default'
                  end
-        constant_name = type.capitalize
+        constant_name = type.to_s.to_pascal_case
       
         if parent_constant.const_defined? constant_name
           child_constant = parent_constant.const_get constant_name

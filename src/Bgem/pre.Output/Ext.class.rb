@@ -10,7 +10,7 @@ def self.new file_extension:, type:, name:, dir:, code:, params:
            else
              'default'
            end
-  constant_name = type.capitalize
+  constant_name = type.to_s.to_pascal_case
 
   if parent_constant.const_defined? constant_name
     child_constant = parent_constant.const_get constant_name
