@@ -10,6 +10,21 @@ module Bgem
     end
   end
 
+  module Extending
+  
+    module String
+      class ::String
+        def to_snake_case
+          self
+            .split(/([A-Z][a-z]+)/)
+            .delete_if(&:empty?)
+            .map(&:downcase)
+            .join('_')
+        end
+      end
+    end
+  end
+
   VERSION = '0.2.2'
   
   require 'pathname'

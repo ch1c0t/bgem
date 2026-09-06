@@ -4,9 +4,9 @@ def name_in_pascal_case
 end
 
 def name_in_snake_case
-  @name_in_snake_case ||= name_in_pascal_case
-    .split(/([A-Z][a-z]+)/)
-    .delete_if(&:empty?)
-    .map(&:downcase)
-    .join('_')
+  @name_in_snake_case ||= begin
+    name = name_in_pascal_case
+    name = name.include?(':') ? name.split(':')[0] : name
+    name.to_snake_case
+  end
 end

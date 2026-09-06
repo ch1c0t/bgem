@@ -36,6 +36,14 @@ module Bgem
                               end
         end
       
+        class Abstractstruct
+          include CR
+          
+          def head
+            "abstract struct #{@name}\n"
+          end
+        end
+      
         class Class
           include CR
           
@@ -61,6 +69,16 @@ module Bgem
           
           def head
             "module #{@name}\n"
+          end
+        end
+      
+        class Struct < Class
+          def head
+            if subclass?
+              "struct #{@name} < #{@parent}\n"
+            else
+              "struct #{@name}\n"
+            end
           end
         end
       end
@@ -107,11 +125,11 @@ module Bgem
       end
       
       def name_in_snake_case
-        @name_in_snake_case ||= name_in_pascal_case
-          .split(/([A-Z][a-z]+)/)
-          .delete_if(&:empty?)
-          .map(&:downcase)
-          .join('_')
+        @name_in_snake_case ||= begin
+          name = name_in_pascal_case
+          name = name.include?(':') ? name.split(':')[0] : name
+          name.to_snake_case
+        end
       end
     end
   
