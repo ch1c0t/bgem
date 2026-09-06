@@ -1,1 +1,0 @@
-puts "from cli.cr"

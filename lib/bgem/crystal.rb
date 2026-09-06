@@ -205,6 +205,7 @@ module Bgem
       end
       
       def make_src
+        Pathname('src').mkpath
         @source_dir.entry_files.each(&:compile)
       end
     
