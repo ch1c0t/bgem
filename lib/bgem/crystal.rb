@@ -64,6 +64,14 @@ module Bgem
           end
         end
       
+        class Lib
+          include CR
+          
+          def head
+            "lib #{@name}\n"
+          end
+        end
+      
         class Module
           include CR
           
