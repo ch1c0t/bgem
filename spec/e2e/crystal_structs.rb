@@ -46,4 +46,21 @@ end
     S
     expect(file.read).to eq expected
   end
+
+  it 'creates a struct that nests a module' do
+    file = src.join 'nesting.cr'
+    expect(file.file?).to be true
+
+    expected = <<~S.chomp
+struct Nesting
+  module M
+    puts "from Nesting::M"
+  end
+
+  property command : String
+  property output : String
+end
+    S
+    expect(file.read).to eq expected
+  end
 end
