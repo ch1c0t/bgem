@@ -36,22 +36,6 @@ module Bgem
                               end
         end
       
-        class AbstractClass
-          include CR
-          
-          def head
-            "abstract class #{@name}\n"
-          end
-        end
-      
-        class AbstractStruct
-          include CR
-          
-          def head
-            "abstract struct #{@name}\n"
-          end
-        end
-      
         class Class
           include CR
           
@@ -69,6 +53,26 @@ module Bgem
           
           def subclass?
             not @parent.empty?
+          end
+        end
+      
+        class AbstractClass < Class
+          include CR
+          
+          def head
+            if subclass?
+              "abstract class #{@name} < #{@parent}\n"
+            else
+              "abstract class #{@name}\n"
+            end
+          end
+        end
+      
+        class AbstractStruct
+          include CR
+          
+          def head
+            "abstract struct #{@name}\n"
           end
         end
       

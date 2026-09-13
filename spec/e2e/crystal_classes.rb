@@ -13,4 +13,16 @@ end
     S
     expect(file.read).to eq expected
   end
+
+  it 'creates an abstract class that inherits from other abstract class' do
+    file = src.join 'crystal_project.cr'
+    expect(file.file?).to be true
+
+    expected = <<~S.chomp
+abstract class CrystalProject < Project
+  abstract def task_prefixes : Array(String)
+end
+    S
+    expect(file.read).to eq expected
+  end
 end
