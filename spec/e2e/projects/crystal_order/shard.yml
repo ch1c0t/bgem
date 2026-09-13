@@ -1,0 +1,8 @@
+---
+name: tmux.select-or-create
+version: 0.1.0
+authors:
+- Anatoly Chernov <chertoly@gmail.com>
+targets: {}
+crystal: ">= 1.15.1"
+license: MIT

@@ -25,7 +25,7 @@ def sort_with_order_file order_file, files
   files_ordered_to_be_first = order.inject([]) do |array, name|
     files_starting_with_name = files.select do |file|
       basename = File.basename file
-      basename.start_with? "#{name}."
+      basename.start_with?("#{name}.") or basename.start_with?("#{name}:")
     end
     array += files_starting_with_name
   end
