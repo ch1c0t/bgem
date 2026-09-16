@@ -1,10 +1,27 @@
 module Bgem
   module Crystal
+    module ExtHelpers
+    
+      module RequiringPart
+        def requiring_part
+          @requiring_part ||= begin
+                                file = dir.join "#{name}.require"
+                                if file.file?
+                                  file.readlines.map do |line|
+                                    'require ' + '"' + line.chomp + '"'
+                                  end.join("\n").concat("\n\n")
+                                end
+                              end
+        end
+      end
+    end
+  
     module Exts
     
       module CR
         include Bgem::Output::Ext::Common
         include Bgem::Output::Ext::StandardHooks
+        include ExtHelpers::RequiringPart
         
         def self.default
           'module'
@@ -23,17 +40,6 @@ module Bgem
           code.prepend "#{pre}\n\n" unless pre.empty?
           code.concat "\n#{post}\n" unless post.empty?
           code
-        end
-        
-        def requiring_part
-          @requiring_part ||= begin
-                                file = dir.join "#{name}.require"
-                                if file.file?
-                                  file.readlines.map do |line|
-                                    'require ' + '"' + line.chomp + '"'
-                                  end.join("\n").concat("\n\n")
-                                end
-                              end
         end
       
         class Class
