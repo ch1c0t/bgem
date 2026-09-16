@@ -1,5 +1,7 @@
 include Bgem::Output::Ext::Common
 include Bgem::Output::Ext::StandardHooks
+
+include ExtHelpers::Preamble
 include ExtHelpers::RequiringPart
 
 def self.default
@@ -10,6 +12,7 @@ attr_reader :head
 
 def to_s
   code = "#{head}#{body}end"
+  code.prepend preamble if preamble
   code.prepend requiring_part if requiring_part
   code
 end

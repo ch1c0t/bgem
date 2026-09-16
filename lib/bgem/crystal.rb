@@ -2,6 +2,21 @@ module Bgem
   module Crystal
     module ExtHelpers
     
+      module Preamble
+        def preamble_file
+          @preamble_file ||= dir.join "#{name}.preamble"
+        end
+        
+        def preamble
+          @preamble ||= begin
+            if preamble_file.file?
+              string = preamble_file.read
+              string.end_with?("\n") ? string : "#{string}\n"
+            end
+          end
+        end
+      end
+    
       module RequiringPart
         def requiring_part
           @requiring_part ||= begin
@@ -21,6 +36,8 @@ module Bgem
       module CR
         include Bgem::Output::Ext::Common
         include Bgem::Output::Ext::StandardHooks
+        
+        include ExtHelpers::Preamble
         include ExtHelpers::RequiringPart
         
         def self.default
@@ -31,6 +48,7 @@ module Bgem
         
         def to_s
           code = "#{head}#{body}end"
+          code.prepend preamble if preamble
           code.prepend requiring_part if requiring_part
           code
         end

@@ -15,4 +15,18 @@ end
     S
     expect(file.read).to eq expected
   end
+
+  it 'adds a preamble' do
+    file = src.join 'lib_x11.cr'
+    expect(file.file?).to be true
+
+    expected = <<~S.chomp
+@[Link("X11")]
+lib LibX11
+  alias Window = LibC::ULong
+  alias Drawable = LibC::ULong
+end
+    S
+    expect(file.read).to eq expected
+  end
 end
