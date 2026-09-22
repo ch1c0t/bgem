@@ -29,4 +29,33 @@ end
     S
     expect(file.read).to eq expected
   end
+
+  it 'incorporates nested structures' do
+    file = src.join 'lib_x.cr'
+    expect(file.file?).to be true
+
+    expected = <<~S.chomp
+lib LibX
+  alias Window = LibC::ULong
+  alias Drawable = LibC::ULong
+  
+  struct XAnyEvent
+    type : LibC::Int
+    serial : LibC::ULong
+    send_event : LibC::Int
+    display : Display
+    window : Window
+  end
+  
+  struct XEvent
+    type : LibC::Int
+    pad : LibC::Long[24]
+  end
+  
+  fun XFree(data : Void*) : LibC::Int
+  fun XNextEvent(display : Display, event_return : XEvent*) : LibC::Int
+end
+    S
+    expect(file.read).to eq expected
+  end
 end

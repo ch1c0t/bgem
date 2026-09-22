@@ -28,6 +28,10 @@ module Bgem
             .map(&:capitalize)
             .join
         end
+      
+        def ending_with_newline
+          end_with?("\n") ? self : "#{self}\n"
+        end
       end
     end
   end
